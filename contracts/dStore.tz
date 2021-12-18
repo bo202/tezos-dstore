@@ -1,0 +1,249 @@
+{ parameter
+    (or (or (pair %buy
+               (pair (int %prodId) (nat %quantity))
+               (pair (address %seller) (mutez %unitPrice)))
+            (pair %sell
+               (pair (int %prodId) (nat %quantity))
+               (pair (address %seller) (mutez %unitPrice))))
+        (pair %withdraw address int)) ;
+  storage
+    (big_map
+       int
+       (map address (pair (pair (mutez %balance) (nat %supply)) (mutez %unitPrice)))) ;
+  code { UNPAIR ;
+         IF_LEFT
+           { IF_LEFT
+               { SWAP ;
+                 DUP ;
+                 DUG 2 ;
+                 SWAP ;
+                 DUP ;
+                 DUG 2 ;
+                 CAR ;
+                 CAR ;
+                 GET ;
+                 IF_NONE
+                   { DROP 2 ; PUSH string "ERROR: Product Id not found." ; FAILWITH }
+                   { DUP ;
+                     DUP 3 ;
+                     CDR ;
+                     CAR ;
+                     GET ;
+                     IF_NONE
+                       { PUSH string "ERROR: Seller not found." ; FAILWITH }
+                       { DUP 3 ;
+                         CAR ;
+                         CDR ;
+                         SWAP ;
+                         DUP ;
+                         DUG 2 ;
+                         CAR ;
+                         CDR ;
+                         COMPARE ;
+                         LT ;
+                         IF { PUSH string "Insufficient supply to meet order" ; FAILWITH } {} ;
+                         DUP ;
+                         CDR ;
+                         DUP 4 ;
+                         CAR ;
+                         CDR ;
+                         DUP 3 ;
+                         CAR ;
+                         CDR ;
+                         SUB ;
+                         ABS ;
+                         DUP 3 ;
+                         CAR ;
+                         CAR ;
+                         PAIR ;
+                         CDR ;
+                         AMOUNT ;
+                         DIG 3 ;
+                         CAR ;
+                         CAR ;
+                         ADD ;
+                         PAIR ;
+                         PAIR } ;
+                     DIG 3 ;
+                     DUG 2 ;
+                     SOME ;
+                     DUP 4 ;
+                     CDR ;
+                     CAR ;
+                     UPDATE ;
+                     SOME ;
+                     DIG 2 ;
+                     CAR ;
+                     CAR ;
+                     UPDATE } ;
+                 NIL operation ;
+                 PAIR }
+               { SWAP ;
+                 DUP ;
+                 DUG 2 ;
+                 SWAP ;
+                 DUP ;
+                 DUG 2 ;
+                 CAR ;
+                 CAR ;
+                 GET ;
+                 IF_NONE
+                   { SWAP ;
+                     EMPTY_MAP address (pair (pair mutez nat) mutez) ;
+                     DUP 3 ;
+                     CDR ;
+                     CDR ;
+                     DUP 4 ;
+                     CAR ;
+                     CDR ;
+                     PUSH mutez 0 ;
+                     PAIR ;
+                     PAIR ;
+                     DUP 4 ;
+                     CDR ;
+                     CAR ;
+                     SWAP ;
+                     SOME ;
+                     SWAP ;
+                     UPDATE ;
+                     DIG 2 ;
+                     CAR ;
+                     CAR ;
+                     SWAP ;
+                     SOME ;
+                     SWAP ;
+                     UPDATE }
+                   { DUP ;
+                     DUP 3 ;
+                     CDR ;
+                     CAR ;
+                     GET ;
+                     IF_NONE
+                       { SWAP ;
+                         DUP ;
+                         DUG 2 ;
+                         CDR ;
+                         CDR ;
+                         DUP 3 ;
+                         CAR ;
+                         CDR ;
+                         PUSH mutez 0 ;
+                         PAIR ;
+                         PAIR }
+                       { DUP 3 ;
+                         CDR ;
+                         CDR ;
+                         SWAP ;
+                         DUP ;
+                         DUG 2 ;
+                         CAR ;
+                         PAIR ;
+                         DUP ;
+                         CDR ;
+                         DUP 5 ;
+                         CAR ;
+                         CDR ;
+                         DIG 3 ;
+                         CAR ;
+                         CDR ;
+                         ADD ;
+                         DIG 2 ;
+                         CAR ;
+                         CAR ;
+                         PAIR ;
+                         PAIR } ;
+                     DIG 3 ;
+                     DUG 2 ;
+                     SOME ;
+                     DUP 4 ;
+                     CDR ;
+                     CAR ;
+                     UPDATE ;
+                     SOME ;
+                     DIG 2 ;
+                     CAR ;
+                     CAR ;
+                     UPDATE } ;
+                 NIL operation ;
+                 PAIR } }
+           { UNPAIR ;
+             DUP 3 ;
+             DUP 3 ;
+             GET ;
+             IF_NONE { PUSH string "Product Id not found." ; FAILWITH } {} ;
+             DUP ;
+             DUP 3 ;
+             GET ;
+             IF_NONE { PUSH string "Seller not found." ; FAILWITH } {} ;
+             PUSH nat 100 ;
+             SWAP ;
+             DUP ;
+             DUG 2 ;
+             CAR ;
+             CAR ;
+             EDIV ;
+             IF_NONE { PUSH string "DIV by 0" ; FAILWITH } {} ;
+             CAR ;
+             DUP ;
+             DUP 3 ;
+             CAR ;
+             CAR ;
+             SUB ;
+             PUSH nat 0 ;
+             DUP 4 ;
+             CAR ;
+             CDR ;
+             COMPARE ;
+             EQ ;
+             IF { DIG 2 ;
+                  DROP ;
+                  DIG 2 ;
+                  DUP 4 ;
+                  NONE (pair (pair mutez nat) mutez) ;
+                  SWAP ;
+                  UPDATE }
+                { DIG 3 ;
+                  DUP 4 ;
+                  CDR ;
+                  DIG 4 ;
+                  CAR ;
+                  CDR ;
+                  PUSH mutez 0 ;
+                  PAIR ;
+                  PAIR ;
+                  SOME ;
+                  DUP 5 ;
+                  UPDATE } ;
+             PUSH address "tz1PJRkMj8A7NQanYEdpaAHw8iCgvZYTPgvp" ;
+             CONTRACT unit ;
+             IF_NONE { PUSH string "Not a contract" ; FAILWITH } {} ;
+             DIG 4 ;
+             CONTRACT unit ;
+             IF_NONE { PUSH string "Not a contract" ; FAILWITH } {} ;
+             DIG 3 ;
+             UNIT ;
+             TRANSFER_TOKENS ;
+             SWAP ;
+             DIG 3 ;
+             UNIT ;
+             TRANSFER_TOKENS ;
+             PUSH nat 0 ;
+             DUP 4 ;
+             SIZE ;
+             COMPARE ;
+             EQ ;
+             IF { DIG 2 ;
+                  DROP ;
+                  DIG 3 ;
+                  DIG 3 ;
+                  NONE (map address (pair (pair mutez nat) mutez)) ;
+                  SWAP ;
+                  UPDATE }
+                { DIG 4 ; DIG 3 ; SOME ; DIG 4 ; UPDATE } ;
+             NIL operation ;
+             DIG 2 ;
+             CONS ;
+             DIG 2 ;
+             CONS ;
+             PAIR } } }
+

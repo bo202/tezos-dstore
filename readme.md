@@ -78,6 +78,9 @@ If the supply is 0, then after withdraw, that market is deleted, and if the mark
     BIG_MAP_EMPTY() 
     
     )
+## Deployment
+
+This version of the contract has been deployed to the hangzhounet test network.  The contract is: KT1AcPq2FWBsN4KbqnE2HwAdDdk7omMaftJA.
 
 ## Future Work
 

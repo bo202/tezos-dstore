@@ -55,7 +55,7 @@ Note that the catalogue now shows no more supply, but the balance is non-zero si
 
 If a seller wants to withdraw the balance from their sales from the catalogue, they can use the Withdraw entrypoint:
 
-    Withdraw (("tz1KqTpEZ7Yob7QbPE4Hy4Wo8fHG8LhKxZSx": address), 123)
+    Withdraw (("tz...": address), 123)
 
 When withdrawing, the current implementation takes a 1% store fee, and pays the seller 99%.
 
